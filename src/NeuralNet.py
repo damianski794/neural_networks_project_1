@@ -13,7 +13,6 @@ class NeuralNet(object):
         self.error_type = error_type
         self.type = type
 
-
         for i in range(number_of_hidden_layers):
             self.hidden_layers.append(NeuronLayer(number_of_hidden_nodes, if_bias))
 
@@ -23,6 +22,7 @@ class NeuralNet(object):
             self.hidden_layers[0].init_weights(number_of_inputs)
             for i in range(1, number_of_hidden_layers):
                 self.hidden_layers[i].init_weights(number_of_hidden_nodes)
+            self.hidden_layers = np.array(self.hidden_layers)
             self.output_layer.init_weights(number_of_hidden_nodes)
         else:
             self.output_layer.init_weights(number_of_inputs)
@@ -91,12 +91,12 @@ class NeuralNet(object):
         self.calculate(training_inputs)
         training_outputs = self.transform_outputs(training_outputs)
 
-        # 1. Output neuron deltas
+        # Output neuron deltas
         output_deltas = np.zeros(len(self.output_layer.neurons))
         for i in range(len(self.output_layer.neurons)):
             output_deltas[i] = self.output_layer.neurons[i].calculate_error_by_target(training_outputs[i], self.activation_method, self.error_type)
 
-        # 2. Hidden neuron deltas
+        # Hidden neuron deltas
         hidden_deltas = []
         for k in range(self.number_of_hidden_layers):
             hidden_delta = np.zeros(len(self.hidden_layers[k].neurons))
@@ -107,13 +107,13 @@ class NeuralNet(object):
                 hidden_delta[i] = derivative_of_neuron * self.hidden_layers[k].neurons[i].activation_derivative(self.activation_method)
             hidden_deltas.append(hidden_delta)
 
-        # 3. Update output neuron weights
+        # Update output neuron weights
         for i in range(len(self.output_layer.neurons)):
             for j in range(len(self.output_layer.neurons[i].weights)):
                 error = output_deltas[i] * self.output_layer.neurons[i].get_last_input_by_index(j)
                 self.output_layer.neurons[i].weights[j] -= self.learning_rate * error
 
-        # 4. Update hidden neuron weights
+        # Update hidden neuron weights
         for k in range(self.number_of_hidden_layers):
             for i in range(len(self.hidden_layers[k].neurons)):
                 for j in range(len(self.hidden_layers[k].neurons[i].weights)):
@@ -125,7 +125,7 @@ class NeuralNet(object):
     def calculate_total_error(self, target_output):
         total_error = 0
         for i in range(len(self.output_layer.neurons)):
-            total_error += self.output_layer.neurons[i].calculate_error(target_output[i], self.error_type)  # przemyśleć
+            total_error += self.output_layer.neurons[i].calculate_error(target_output[i], self.error_type)
         return total_error
 
     def bulk_train(self, inputs, outputs, iterations):

@@ -17,6 +17,15 @@ class Neuron(object):
             return 0
         return 1
 
+    def leaky_relu(self, x):
+        return np.maximum(0.1 * x, x)
+
+    def leaky_relu_derivative(self):
+        x = np.dot(self.last_inputs, self.weights) + self.bias
+        if x <= 0:
+            return 0.1
+        return 1
+
     def sigmoid(self, x):
         return 1 / (1 + np.exp(-x))
 
@@ -35,6 +44,14 @@ class Neuron(object):
     def mse_error_derivative(self, target):
         return -(target - self.last_result)
 
+    def mae_error(self, target):
+        return np.abs(target - self.last_result)
+
+    def mae_error_derivative(self, target):
+        if self.last_result > target:
+            return -1
+        return 1
+
     def calculate(self, inputs, activation_method):
         self.last_inputs = inputs
         self.last_result = self.activation(np.dot(inputs, self.weights) + self.bias, activation_method)
@@ -49,12 +66,16 @@ class Neuron(object):
     def calculate_error(self, target, error_type):
         if error_type.lower() == 'mse':
             return self.mse_error(target)
+        if error_type.lower() == 'mae':
+            return self.mae_error(target)
         else:
             raise Exception('Wrong error type')
 
     def calculate_error_derivative(self, target, error_type):
         if error_type.lower() == 'mse':
             return self.mse_error_derivative(target)
+        if error_type.lower() == 'mae':
+            return self.mae_error_derivative(target)
         else:
             raise Exception('Wrong error type')
 
@@ -65,6 +86,8 @@ class Neuron(object):
             return self.relu(x)
         elif activation_method.lower() == 'linear':
             return self.linear(x)
+        elif activation_method.lower() == 'leaky':
+            return self.leaky_relu(x)
         else:
             raise Exception('Wrong activation function specified')
 
@@ -75,5 +98,7 @@ class Neuron(object):
             return self.relu_derivative()
         elif activation_method.lower() == 'linear':
             return self.linear_derivative()
+        elif activation_method.lower() == 'leaky':
+            return self.leaky_relu_derivative()
         else:
             raise Exception('Wrong activation function specified')

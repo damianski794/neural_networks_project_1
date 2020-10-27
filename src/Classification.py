@@ -8,7 +8,7 @@ class Classification(object):
     def __init__(self):
         self.data_reader = DataReader()
 
-    def train(self, train_file, iterations, number_of_hidden_layers, number_of_hidden_nodes, if_bias, learning_rate, activation_method, error_type):
+    def train(self, train_file, iterations, number_of_hidden_layers, number_of_hidden_nodes, if_bias, learning_rate, activation_method, error_type, img_name):
         inputs, outputs = self.data_reader.read_classification_data(train_file)
         inputs = np.array(inputs)
         outputs = np.array(outputs).T
@@ -21,10 +21,12 @@ class Classification(object):
         errors = self.neural_net.bulk_train(inputs, outputs, iterations)
 
         print(errors)
+        plt.clf()
         plt.scatter(list(range(iterations)), errors, color='blue', s=10)
         plt.show()
+        # plt.savefig('img/' + img_name)
 
-    def test(self, test_file):
+    def test(self, test_file, img_name):
         inputs_test, outputs_test = self.data_reader.read_classification_data(test_file)
         inputs_test = np.array(inputs_test)
         outputs_test = np.array(outputs_test).T
@@ -32,11 +34,11 @@ class Classification(object):
         x, y = map(list, zip(*inputs_test))
         x = list(map(float, x))
         y = list(map(float, y))
-        colormap = np.array(['r', 'g', 'b', 'y'])
+        colormap = np.array(['r', 'g', 'b', 'y', 'c', 'm'])
         for i in range(len(results)):
             if outputs_test[i] != results[i]:
                 results[i] = 0
-
-        plt.scatter(x, y, c=colormap[results], s=5)
-
+        plt.clf()
+        plt.scatter(x, y, c=colormap[results])
         plt.show()
+        # plt.savefig('img/' + img_name)
